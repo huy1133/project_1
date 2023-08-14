@@ -15,13 +15,15 @@ public class playerControler : MonoBehaviour
     public Vector3[] point;
     public int current;
     private DriverMode mode;
+    private Rigidbody rb;
     // Start is called before the first frame update
     void Start()
     {
         mode = DriverMode.Manual;
+        rb = GetComponent<Rigidbody>();
         
     }
-
+    
     // Update is called once per frame
     void Update()
     {
@@ -42,15 +44,14 @@ public class playerControler : MonoBehaviour
             }
         }else if (mode == DriverMode.Manual)
         {
-            float horizontalInput = Input.GetAxis("Horizontal");
+            float horizontalInput = Input.GetAxisRaw("Horizontal");
             float verticalInput = Input.GetAxis("Vertical");
             
             Vector3 moveDirection = new Vector3(0f, 0f, verticalInput);
             transform.Translate(moveDirection * speed * Time.deltaTime);
-
-            
             transform.Rotate(Vector3.up * horizontalInput * rotationSpeed * Time.deltaTime);
-
+            rb.AddForce(transform.forward*verticalInput*speed);
+            //rb.AddTorque(Vector3.up*horizontalInput*rotationSpeed);
         }
     }
     
