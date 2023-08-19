@@ -1,7 +1,10 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.Loading;
 using Unity.VisualScripting;
+using UnityEditor.SearchService;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class playerControler : MonoBehaviour
 {
@@ -16,12 +19,70 @@ public class playerControler : MonoBehaviour
     public int current;
     private DriverMode mode;
     private Rigidbody rb;
+    private float damager;
+    private float fuel;
+    private float capacity;
+    private float laps;
+    private Vector3 pointstar ;
+    public GameObject[] barrier = new GameObject[4];
+    public Vector3[] pointBarrier = new Vector3[8];
+
     // Start is called before the first frame update
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.tag == "hit")
+        {
+            damager += 5;
+        }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.tag == "checkpoint")
+        {
+            laps++;
+            resetBarrier();
+        }
+    }
+    void resetBarrier()
+    {
+        int[] list = new int[4];
+        int index = 0;
+        while (index < 4)
+        {
+            bool check = true;
+            int temp = Random.Range(0, 8);
+            for (int i = 0; i < index; i++)
+            {
+                if (list[i] == temp)
+                {
+                    check = false;
+                    break;
+                }
+                list[index] = temp;
+            }
+            if (check)
+            {
+                //Debug.Log(temp);
+                GameObject barrierTemp = barrier[index];
+                barrierTemp.SetActive(true);
+                barrierTemp.transform.position = pointBarrier[temp];
+                index++;
+            }
+        }
+    }
+   
+    
     void Start()
     {
         mode = DriverMode.Manual;
         rb = GetComponent<Rigidbody>();
         
+        damager = 0;
+        pointstar = new Vector3 (71,0,0);
+        transform.position = pointstar;
+        laps = 0;
+        capacity = 100;
+        fuel = 100;
     }
     
     // Update is called once per frame
@@ -51,8 +112,22 @@ public class playerControler : MonoBehaviour
             transform.Translate(moveDirection * speed * Time.deltaTime);
             transform.Rotate(Vector3.up * horizontalInput * rotationSpeed * Time.deltaTime);
             rb.AddForce(transform.forward*verticalInput*speed);
-            //rb.AddTorque(Vector3.up*horizontalInput*rotationSpeed);
+            
+        }
+        if(damager >= 100)
+        {
+            SceneManager.LoadScene("lesson_6");
+            damager = 0;
+        }
+        checkfuel();
+        Debug.Log(fuel);
+        
+        
+    }
+    void checkfuel()
+    {
+        if (Input.GetAxis("Vertical") != 0) {
+            fuel -= 0.1f ;
         }
     }
-    
 }
