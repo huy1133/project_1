@@ -13,16 +13,17 @@ public class playerControler : MonoBehaviour
         Manual,
         Automatic
     }
+    
     public float speed;
     public float rotationSpeed;
     public Vector3[] point;
     public int current;
     private DriverMode mode;
     private Rigidbody rb;
-    private float damager;
+    private int damager;
     private float fuel;
     private float capacity;
-    private float laps;
+    private int laps;
     private Vector3 pointstar ;
     public GameObject[] barrier = new GameObject[4];
     public Vector3[] pointBarrier = new Vector3[8];
@@ -41,7 +42,12 @@ public class playerControler : MonoBehaviour
         {
             laps++;
             resetBarrier();
+            resetFuel();
         }
+    }
+    void resetFuel() 
+    {
+        fuel = 100;
     }
     void resetBarrier()
     {
@@ -120,9 +126,11 @@ public class playerControler : MonoBehaviour
             damager = 0;
         }
         checkfuel();
-        Debug.Log(fuel);
-        
-        
+        GameObject gameObject = GameObject.Find("gameManager");
+        gameObject.GetComponent<gameManager>().setlaps(laps);
+        gameObject.GetComponent<gameManager>().bloodLoss(damager);
+        gameObject.GetComponent<gameManager>().fuel(capacity, fuel);
+
     }
     void checkfuel()
     {
